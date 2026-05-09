@@ -1,7 +1,7 @@
 from fastapi import Depends, FastAPI
 from pydantic import BaseModel
 from database import session,engine
-import data_model
+import datamodel
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -39,17 +39,17 @@ def get_db():
 
 def init_db():
     db=session()
-    count=db.query(data_model.products).count()
+    count=db.query(datamodel.products).count()
 
     if count==0:
       for product in Products:
-          db.add(data_model.products(**product.model_dump()))
+          db.add(datamodel.products(**product.model_dump()))
       db.commit()
 init_db()        
 
 @app.get("/product")    
 def product_list(db:Session = Depends(get_db)):
-    db_list=db.query(data_model.products).all()
+    db_list=db.query(datamodel.products).all()
 
     
     return db_list
@@ -59,7 +59,7 @@ def product_list(db:Session = Depends(get_db)):
 #For take Id wise Product Details
 @app.get("/product/{id}")
 def product_by_id(id:int,db:Session = Depends(get_db)):
-    db_list=db.query(data_model.products).filter(data_model.products.id==id).first()
+    db_list=db.query(datamodel.products).filter(datamodel.products.id==id).first()
     if db_list:
         return db_list
     return "Product Not Found"
@@ -67,7 +67,7 @@ def product_by_id(id:int,db:Session = Depends(get_db)):
 # Add Products To that Already Existed Product
 @app.post("/product")
 def add(product:products,db:Session = Depends(get_db)):
-    db.add(data_model.products(**product.model_dump()))
+    db.add(datamodel.products(**product.model_dump()))
     db.commit()
   
     return product
@@ -75,7 +75,7 @@ def add(product:products,db:Session = Depends(get_db)):
 #Update A Product List [PUT]
 @app.put("/product")
 def update(id:int,product:products,db:Session = Depends(get_db)):
-    db_list=db.query(data_model.products).filter(data_model.products.id==id).first()
+    db_list=db.query(datamodel.products).filter(datamodel.products.id==id).first()
     if db_list:
         db_list.name=product.name
         db_list.descrption=product.descrption
@@ -89,7 +89,7 @@ def update(id:int,product:products,db:Session = Depends(get_db)):
 #Delete The Product [delete]
 @app.delete("/product")
 def delete(id:int,db:Session = Depends(get_db)):
-    db_list=db.query(data_model.products).filter(data_model.products.id==id).first()
+    db_list=db.query(datamodel.products).filter(datamodel.products.id==id).first()
     if db_list:
         db.delete(db_list)
         db.commit()
