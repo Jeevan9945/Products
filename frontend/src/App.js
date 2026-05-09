@@ -24,7 +24,7 @@ function App() {
 
   // DELETE
   const deleteProduct = (id) => {
-    fetch(`http://127.0.0.1:8000/product?id=${id}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/product`), {
       method: "DELETE",
     }).then(() => {
       setProducts(products.filter((p) => p.id !== id));
