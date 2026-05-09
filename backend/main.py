@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 
-data_model.Base.metadata.create_all(bind=engine)
+datamodel.Base.metadata.create_all(bind=engine)
 app=FastAPI()
 app.add_middleware(
     CORSMiddleware,
