@@ -7,6 +7,8 @@ function App() {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
+  const API = process.env.REACT_APP_API_URL;
+
   const [form, setForm] = useState({
     id: "",
     name: "",
@@ -17,14 +19,14 @@ function App() {
 
   // FETCH DATA
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/product")
+    fetch(`${API}/product`)
       .then((res) => res.json())
       .then((data) => setProducts(data));
   }, []);
 
   // DELETE
   const deleteProduct = (id) => {
-    fetch(`${import.meta.env.VITE_API_URL}/product`), {
+    fetch(`${API}/product?id=${id}`, {
       method: "DELETE",
     }).then(() => {
       setProducts(products.filter((p) => p.id !== id));
@@ -33,7 +35,14 @@ function App() {
 
   // OPEN ADD
   const openAdd = () => {
-    setForm({ id: "", name: "", descrption: "", quantity: "", price: "" });
+    setForm({
+      id: "",
+      name: "",
+      descrption: "",
+      quantity: "",
+      price: "",
+    });
+
     setIsEditing(false);
     setShowModal(true);
   };
@@ -45,21 +54,31 @@ function App() {
     setShowModal(true);
   };
 
-  // SAVE (ADD / UPDATE)
+  // SAVE PRODUCT
   const saveProduct = () => {
     if (isEditing) {
-      fetch(`http://127.0.0.1:8000/product?id=${form.id}`, {
+      fetch(`${API}/product?id=${form.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: Number(form.id),
+          name: form.name,
+          descrption: form.descrption,
+          quantity: Number(form.quantity),
+          price: Number(form.price),
+        }),
       }).then(() => {
         setProducts(products.map((p) => (p.id === form.id ? form : p)));
         setShowModal(false);
       });
     } else {
-      fetch("http://127.0.0.1:8000/product", {
+      fetch(`${API}/product`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           id: Number(form.id),
           name: form.name,
@@ -76,6 +95,7 @@ function App() {
     }
   };
 
+  // SEARCH FILTER
   const filtered = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
   );
@@ -94,6 +114,7 @@ function App() {
       <div className="main">
         <div className="topbar">
           <h2>Product Dashboard</h2>
+
           <button className="add-btn" onClick={openAdd}>
             + Add Product
           </button>
@@ -101,7 +122,10 @@ function App() {
 
         {/* STATS */}
         <div className="stats">
-          <div className="card">Total Products: {products.length}</div>
+          <div className="card">
+            Total Products: {products.length}
+          </div>
+
           <div className="card">
             Total Stock:{" "}
             {products.reduce((sum, p) => sum + p.quantity, 0)}
@@ -122,7 +146,7 @@ function App() {
               <th>ID</th>
               <th>Name</th>
               <th>Description</th>
-              <th>Qty</th>
+              <th>Quantity</th>
               <th>Price</th>
               <th>Action</th>
             </tr>
@@ -136,8 +160,12 @@ function App() {
                 <td>{p.descrption}</td>
                 <td>{p.quantity}</td>
                 <td>₹{p.price}</td>
+
                 <td>
-                  <button onClick={() => openEdit(p)}>Edit</button>
+                  <button onClick={() => openEdit(p)}>
+                    Edit
+                  </button>
+
                   <button
                     className="delete"
                     onClick={() => deleteProduct(p.id)}
@@ -155,43 +183,69 @@ function App() {
       {showModal && (
         <div className="modal">
           <div className="modal-content">
-            <h3>{isEditing ? "Edit Product" : "Add Product"}</h3>
+
+            <h3>
+              {isEditing ? "Edit Product" : "Add Product"}
+            </h3>
 
             <input
               placeholder="ID"
               value={form.id}
               disabled={isEditing}
-              onChange={(e) => setForm({ ...form, id: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, id: e.target.value })
+              }
             />
+
             <input
               placeholder="Name"
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, name: e.target.value })
+              }
             />
+
             <input
               placeholder="Description"
               value={form.descrption}
               onChange={(e) =>
-                setForm({ ...form, descrption: e.target.value })
+                setForm({
+                  ...form,
+                  descrption: e.target.value,
+                })
               }
             />
+
             <input
               placeholder="Quantity"
               value={form.quantity}
               onChange={(e) =>
-                setForm({ ...form, quantity: e.target.value })
+                setForm({
+                  ...form,
+                  quantity: e.target.value,
+                })
               }
             />
+
             <input
               placeholder="Price"
               value={form.price}
-              onChange={(e) => setForm({ ...form, price: e.target.value })}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  price: e.target.value,
+                })
+              }
             />
 
             <button onClick={saveProduct}>
               {isEditing ? "Update" : "Add"}
             </button>
-            <button onClick={() => setShowModal(false)}>Cancel</button>
+
+            <button onClick={() => setShowModal(false)}>
+              Cancel
+            </button>
+
           </div>
         </div>
       )}
