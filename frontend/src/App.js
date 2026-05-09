@@ -22,7 +22,7 @@ function App() {
     fetch(`${API}/product`)
       .then((res) => res.json())
       .then((data) => setProducts(data));
-  }, []);
+  }, [API]);
 
   // DELETE
   const deleteProduct = (id) => {
