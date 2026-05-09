@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 
-#datamodel.Base.metadata.create_all(bind=engine)
+datamodel.Base.metadata.create_all(bind=engine)
 app=FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -45,7 +45,7 @@ def init_db():
       for product in Products:
           db.add(datamodel.products(**product.model_dump()))
       db.commit()
-#init_db()        
+init_db()        
 
 @app.get("/product")    
 def product_list(db:Session = Depends(get_db)):
